@@ -1,0 +1,481 @@
+{
+  "name": "public",
+  "namespaces": [
+    "public"
+  ],
+  "tables": [
+    {
+      "name": "friend_request",
+      "schema": "public",
+      "columns": {
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "receiver_id": {
+          "name": "receiver_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "sender_id": {
+          "name": "sender_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "'pending'",
+          "comment": null,
+          "enumItems": [
+            "pending",
+            "accepted",
+            "rejected"
+          ],
+          "mappedType": "enum"
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "friend_request_pkey",
+          "primary": true,
+          "unique": true
+        },
+        {
+          "columnNames": [
+            "receiver_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "friend_request_receiver_id_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "sender_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "friend_request_sender_id_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "sender_id",
+            "receiver_id"
+          ],
+          "composite": true,
+          "constraint": true,
+          "keyName": "friend_request_sender_id_receiver_id_unique",
+          "primary": false,
+          "unique": true
+        }
+      ],
+      "checks": [
+        {
+          "name": "friend_request_status_check",
+          "expression": "\"status\" in ('pending', 'accepted', 'rejected')",
+          "definition": "check (\"status\" in ('pending', 'accepted', 'rejected'))",
+          "columnName": "status"
+        }
+      ],
+      "foreignKeys": {
+        "friend_request_receiver_id_foreign": {
+          "columnNames": [
+            "receiver_id"
+          ],
+          "constraintName": "friend_request_receiver_id_foreign",
+          "localTableName": "public.friend_request",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user"
+        },
+        "friend_request_sender_id_foreign": {
+          "columnNames": [
+            "sender_id"
+          ],
+          "constraintName": "friend_request_sender_id_foreign",
+          "localTableName": "public.friend_request",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user"
+        }
+      },
+      "comment": null
+    },
+    {
+      "name": "session",
+      "schema": "public",
+      "columns": {
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "session_pkey",
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "session_user_id_foreign": {
+          "columnNames": [
+            "user_id"
+          ],
+          "constraintName": "session_user_id_foreign",
+          "localTableName": "public.session",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user"
+        }
+      },
+      "comment": null
+    },
+    {
+      "name": "todo",
+      "schema": "public",
+      "columns": {
+        "about": {
+          "name": "about",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "created_on": {
+          "name": "created_on",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "is_completed": {
+          "name": "is_completed",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "false",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "boolean"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "reminder_time": {
+          "name": "reminder_time",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "todo_pkey",
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "todo_owner_id_foreign": {
+          "columnNames": [
+            "owner_id"
+          ],
+          "constraintName": "todo_owner_id_foreign",
+          "localTableName": "public.todo",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user"
+        }
+      },
+      "comment": null
+    },
+    {
+      "name": "user",
+      "schema": "public",
+      "columns": {
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "email"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "user_email_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "user_pkey",
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {},
+      "comment": null
+    }
+  ],
+  "views": [],
+  "nativeEnums": {}
+}

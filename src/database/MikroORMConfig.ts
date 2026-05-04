@@ -1,0 +1,37 @@
+//MikroORM setup with the database and entity discovery for migrations
+import "dotenv/config";
+import { defineConfig } from "@mikro-orm/postgresql";
+import { Migrator } from "@mikro-orm/migrations";
+import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
+
+//manually introducing entities for now,
+import { User } from "../features/auth/User.entity";
+import { Session } from "../features/auth/Session.entity";
+import { FriendRequest } from "../features/friend/FriendRequest.entity";
+import { Todo } from "../features/todo/Todo.entity";
+
+export default defineConfig({
+  dbName: process.env.DATABASE_NAME!,
+  clientUrl: process.env.DATABASE_URL!,
+
+  driverOptions: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
+
+  metadataProvider: TsMorphMetadataProvider,
+  entities: [User, Session, FriendRequest, Todo],
+  // entitiesTs: ["src/features/**/*.entity.ts"],
+
+  debug: process.env.NODE_ENV !== "production",
+
+  extensions: [Migrator],
+
+  migrations: {
+    path: "./src/database/migrations",
+    pathTs: "./src/database/migrations",
+
+    glob: "!(*.d).{ts,js}",
+  },
+});

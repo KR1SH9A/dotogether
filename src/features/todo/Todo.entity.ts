@@ -3,9 +3,12 @@ import {
   PrimaryKey,
   Property,
   ManyToOne,
-} from "@mikro-orm/decorators/legacy";
+  ManyToMany,
+} from "@mikro-orm/decorators/es";
 
-import { User } from "./User";
+import { Collection } from "@mikro-orm/core";
+
+import { User } from "../auth/User.entity";
 
 @Entity()
 export class Todo {
@@ -29,4 +32,7 @@ export class Todo {
 
   @ManyToOne(() => User)
   owner!: User;
+
+  @ManyToMany(() => User)
+  participants = new Collection<User>(this);
 }

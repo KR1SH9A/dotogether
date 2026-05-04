@@ -5,11 +5,10 @@ import {
   Property,
   ManyToOne,
   Unique,
-} from "@mikro-orm/decorators/legacy";
+  Index,
+} from "@mikro-orm/decorators/es";
 
-import { Collection } from "@mikro-orm/core";
-
-import { User } from "./User";
+import { User } from "../auth/User.entity";
 
 export enum FriendRequestStatus {
   PENDING = "pending",
@@ -19,14 +18,16 @@ export enum FriendRequestStatus {
 
 @Entity()
 @Unique({ properties: ["sender", "receiver"] })
+@Index({ properties: ["sender"] })
+@Index({ properties: ["receiver"] })
 export class FriendRequest {
   @PrimaryKey()
   id!: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false })
   sender!: User;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: false })
   receiver!: User;
 
   @Enum(() => FriendRequestStatus)

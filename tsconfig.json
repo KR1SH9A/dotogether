@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist",
+    "outDir": "dist",
 
-    "module": "CommonJS",
-    "target": "ES2020",
+    "useDefineForClassFields": false,
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2024",
     "types": ["node"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -15,9 +18,14 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
+
     "strict": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
+
+  "include": ["./src/**/*.ts"],
 }

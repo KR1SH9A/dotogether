@@ -1,11 +1,32 @@
 import express from "express";
-import todoRoutes from "./routes/todoRoutes";
+import "reflect-metadata";
+import { InitORM } from "./database/InitORM";
 
-const todoApp = express();
-todoApp.use(express.json());
+//controllers here
+import authRouter from "./features/auth/auth.controller";
 
-todoApp.use("/todo", todoRoutes);
+//middleware here
+import { errorMiddleWare } from "./common/middleware/error.middleware";
 
-todoApp.listen(3000, () => {
-  console.log("Todo App is running on port 3000 -> http://localhost:3000/todo");
-});
+const start = async () => {
+  const dotogether = express();
+  dotogether.use(express.json());
+
+  const orm = await InitORM();
+
+  dotogether.use((req: any, _res, next) => {
+    req.em = orm.em.fork();
+    next();
+  });
+
+  //routes are here, I am making the rest of them
+  dotogether.use("/auth", authRouter);
+
+  dotogether.use(errorMiddleWare);
+
+  dotogether.listen(3000, () => {
+    console.log("DoTogether is running here -> http://localhost:3000");
+  });
+};
+
+start();

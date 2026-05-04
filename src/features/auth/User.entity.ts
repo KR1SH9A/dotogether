@@ -3,16 +3,19 @@ import {
   PrimaryKey,
   Property,
   OneToMany,
-} from "@mikro-orm/decorators/legacy";
+} from "@mikro-orm/decorators/es";
 
 import { Collection } from "@mikro-orm/core";
-import { Todo } from "./Todo";
-import { FriendRequest } from "./FriendRequest";
+import { Todo } from "../todo/Todo.entity";
+import { FriendRequest } from "../friend/FriendRequest.entity";
 
 @Entity()
 export class User {
   @PrimaryKey()
   id!: number;
+
+  @Property()
+  username!: string;
 
   @Property({ unique: true })
   email!: string;

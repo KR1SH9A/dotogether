@@ -8,15 +8,15 @@ export class FriendService {
   constructor(private em: EntityManager) {}
 
   //service for sending friend requests with some cases handled
-  async sendRequest(senderId: number, receiverId: number) {
-    if (senderId == receiverId) {
+  async sendRequest(senderId: number, receiverEmail: string) {
+    const sender = await this.em.findOne(User, { id: senderId });
+    if (sender?.email === receiverEmail) {
       throw new AppError(
         "Oops! you can be friend to yourself but not like this lol",
         400,
       );
     }
-    const sender = await this.em.findOne(User, { id: senderId });
-    const receiver = await this.em.findOne(User, { id: receiverId });
+    const receiver = await this.em.findOne(User, { email: receiverEmail });
 
     if (!sender || !receiver) {
       throw new AppError(
@@ -47,7 +47,7 @@ export class FriendService {
     return {
       id: req.id,
       status: req.status,
-      receiver: { id: receiverId, email: receiver.email },
+      receiver: { id: receiver.id, email: receiver.email },
     };
   }
 
@@ -105,6 +105,7 @@ export class FriendService {
       return {
         id: other.id,
         email: other.email,
+        username: other.username,
       };
     });
   }
@@ -126,6 +127,7 @@ export class FriendService {
       sender: {
         id: r.sender.id,
         email: r.sender.email,
+        username: r.sender.username,
       },
     }));
   }

@@ -22,7 +22,7 @@ export class Todo {
   isCompleted: boolean = false;
 
   @Property()
-  createdOn: number = Date.now();
+  createdOn: number = Math.floor(Date.now() / 1000);
 
   @Property()
   about?: string;

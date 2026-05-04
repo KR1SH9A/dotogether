@@ -19,7 +19,7 @@ friendRouter.post("/request", async (req: any, res, next) => {
 
     const service = new FriendService(req.em);
 
-    const result = await service.sendRequest(req.user.id, parsed.receiverId);
+    const result = await service.sendRequest(req.user.id, parsed.email);
 
     res.json(result);
   } catch (err) {

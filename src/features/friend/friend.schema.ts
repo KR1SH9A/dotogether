@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const sendFriendRequestSchema = z.object({
-  receiverId: z.number().int().positive(),
+  email: z.string().email(),
 });
 
 export const respondFriendRequestSchema = z.object({

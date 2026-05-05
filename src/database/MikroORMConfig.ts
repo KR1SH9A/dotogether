@@ -11,8 +11,8 @@ import { FriendRequest } from "../features/friend/FriendRequest.entity.js";
 import { Todo } from "../features/todo/Todo.entity.js";
 
 export default defineConfig({
-  dbName: process.env.DATABASE_NAME!,
-  clientUrl: process.env.DATABASE_URL!,
+  dbName: process.env.DATABASE_NAME || "dummy_db",
+  clientUrl: process.env.DATABASE_URL || "postgresql://dummy:dummy@localhost:5432/dummy",
 
   driverOptions: {
     ssl: {
@@ -21,7 +21,7 @@ export default defineConfig({
   },
 
   metadataProvider: TsMorphMetadataProvider,
-  metadataCache: { enabled: false },
+  metadataCache: { enabled: process.env.NODE_ENV === "production" },
   entities: [User, Session, FriendRequest, Todo],
   // entitiesTs: ["src/features/**/*.entity.ts"],
 

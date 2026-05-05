@@ -4,6 +4,7 @@ import { defineConfig } from "@mikro-orm/postgresql";
 import { Migrator } from "@mikro-orm/migrations";
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
 import { GeneratedCacheAdapter } from "@mikro-orm/core";
+import fs from 'fs';
 
 //manually introducing entities for now,
 import { User } from "../features/auth/User.entity.js";
@@ -25,7 +26,9 @@ export default defineConfig({
   metadataCache: { 
     enabled: process.env.NODE_ENV === "production",
     ...(process.env.NODE_ENV === "production" ? { adapter: GeneratedCacheAdapter } : {}),
-    options: { cacheDir: process.cwd() + '/temp' }
+    options: process.env.NODE_ENV === "production" 
+      ? { data: JSON.parse(fs.readFileSync(process.cwd() + '/temp/metadata.json', 'utf8')) } 
+      : { cacheDir: process.cwd() + '/temp' }
   },
   entities: [User, Session, FriendRequest, Todo],
   // entitiesTs: ["src/features/**/*.entity.ts"],

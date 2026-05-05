@@ -8,7 +8,7 @@ import {
   Index,
 } from "@mikro-orm/decorators/es";
 
-import { User } from "../auth/User.entity";
+import { User } from "../auth/User.entity.js";
 
 export enum FriendRequestStatus {
   PENDING = "pending",

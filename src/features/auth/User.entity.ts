@@ -6,8 +6,8 @@ import {
 } from "@mikro-orm/decorators/es";
 
 import { Collection } from "@mikro-orm/core";
-import { Todo } from "../todo/Todo.entity";
-import { FriendRequest } from "../friend/FriendRequest.entity";
+import { Todo } from "../todo/Todo.entity.js";
+import { FriendRequest } from "../friend/FriendRequest.entity.js";
 
 @Entity()
 export class User {

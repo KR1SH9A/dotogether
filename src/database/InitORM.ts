@@ -1,5 +1,5 @@
 import { MikroORM } from "@mikro-orm/postgresql";
-import defineConfig from "./MikroORMConfig";
+import defineConfig from "./MikroORMConfig.js";
 
 let orm: MikroORM | null = null;
 

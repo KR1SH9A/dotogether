@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { validate } from "../../common/middleware/validate.middleware";
-import { FriendService } from "./friend.service";
+import { validate } from "../../common/middleware/validate.middleware.js";
+import { FriendService } from "./friend.service.js";
 import {
   sendFriendRequestSchema,
   respondFriendRequestSchema,
-} from "./friend.schema";
-import { requireUser } from "../../common/middleware/auth.middleware";
+} from "./friend.schema.js";
+import { requireUser } from "../../common/middleware/auth.middleware.js";
 
 const friendRouter = Router();
 
@@ -35,9 +35,9 @@ friendRouter.post("/respond", async (req: any, res, next) => {
     const service = new FriendService(req.em);
 
     const response = await service.respondToRequest(
-      req.user.id,
+      parsed.requestId,
       parsed.action,
-      req.requestId,
+      req.user.id,
     );
 
     res.json(response);

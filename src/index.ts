@@ -1,29 +1,36 @@
 import express from "express";
 import cors from "cors";
 import "reflect-metadata";
-import { InitORM } from "./database/InitORM";
+import { InitORM } from "./database/InitORM.js";
 
 //controllers here
-import authRouter from "./features/auth/auth.controller";
-import friendRouter from "./features/friend/friend.controller";
-import todoRouter from "./features/todo/todo.controller";
+import authRouter from "./features/auth/auth.controller.js";
+import friendRouter from "./features/friend/friend.controller.js";
+import todoRouter from "./features/todo/todo.controller.js";
 
 //middleware here
-import { errorMiddleWare } from "./common/middleware/error.middleware";
+import { errorMiddleWare } from "./common/middleware/error.middleware.js";
 
 const dotogether = express();
-dotogether.use(cors());
+dotogether.use(cors({
+  origin: process.env.ALLOWED_ORIGIN ?? "*",
+  credentials: true,
+}));
 dotogether.use(express.json());
 
 let ormInstance: any = null;
 
 // Lazy initialize ORM for Vercel Serverless cold starts
 dotogether.use(async (req: any, _res, next) => {
-  if (!ormInstance) {
-    ormInstance = await InitORM();
+  try {
+    if (!ormInstance) {
+      ormInstance = await InitORM();
+    }
+    req.em = ormInstance.em.fork();
+    next();
+  } catch (err) {
+    next(err);
   }
-  req.em = ormInstance.em.fork();
-  next();
 });
 
 const apiRouter = express.Router();

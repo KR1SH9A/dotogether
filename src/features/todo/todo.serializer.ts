@@ -1,4 +1,4 @@
-import { Todo } from "./Todo.entity";
+import { Todo } from "./Todo.entity.js";
 
 export function serializeTodo(todo: Todo) {
   return {

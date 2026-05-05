@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { validate } from "../../common/middleware/validate.middleware";
-import { requireUser } from "../../common/middleware/auth.middleware";
-import { TodoService } from "./todo.service";
+import { validate } from "../../common/middleware/validate.middleware.js";
+import { requireUser } from "../../common/middleware/auth.middleware.js";
+import { TodoService } from "./todo.service.js";
 import {
   createTodoSchema,
   updateTodoSchema,
   addParticipantsSchema,
-} from "./todo.schema";
+} from "./todo.schema.js";
 
 const todoRouter = Router();
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { startTransition, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
@@ -9,7 +9,7 @@ export const ThemeToggle: React.FC = () => {
 
   const handleToggle = () => {
     setIsFiddling(true);
-    toggleTheme();
+    startTransition(() => toggleTheme());
     setTimeout(() => {
       setIsFiddling(false);
     }, 400); // Cat fiddles for 400ms

@@ -5,7 +5,7 @@ import {
   ManyToOne,
 } from "@mikro-orm/decorators/es";
 
-import { User } from "./User.entity";
+import { User } from "./User.entity.js";
 
 @Entity()
 export class Session {

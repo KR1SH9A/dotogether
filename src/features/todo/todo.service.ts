@@ -1,10 +1,10 @@
-import { User } from "../auth/User.entity";
-import { Todo } from "./Todo.entity";
-import { AppError } from "../../common/errors/AppError";
+import { User } from "../auth/User.entity.js";
+import { Todo } from "./Todo.entity.js";
+import { AppError } from "../../common/errors/AppError.js";
 import {
   FriendRequest,
   FriendRequestStatus,
-} from "../friend/FriendRequest.entity";
+} from "../friend/FriendRequest.entity.js";
 import { EntityManager } from "@mikro-orm/postgresql";
 
 export class TodoService {

@@ -5,10 +5,10 @@ import { Migrator } from "@mikro-orm/migrations";
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
 
 //manually introducing entities for now,
-import { User } from "../features/auth/User.entity";
-import { Session } from "../features/auth/Session.entity";
-import { FriendRequest } from "../features/friend/FriendRequest.entity";
-import { Todo } from "../features/todo/Todo.entity";
+import { User } from "../features/auth/User.entity.js";
+import { Session } from "../features/auth/Session.entity.js";
+import { FriendRequest } from "../features/friend/FriendRequest.entity.js";
+import { Todo } from "../features/todo/Todo.entity.js";
 
 export default defineConfig({
   dbName: process.env.DATABASE_NAME!,

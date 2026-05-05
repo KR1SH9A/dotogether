@@ -1,6 +1,6 @@
 import { NextFunction } from "express";
-import { Session } from "../../features/auth/Session.entity";
-import { AppError } from "../errors/AppError";
+import { Session } from "../../features/auth/Session.entity.js";
+import { AppError } from "../errors/AppError.js";
 
 export const requireUser = async (req: any, _res: any, next: NextFunction) => {
   const sessionId = req.headers["x-session-id"];

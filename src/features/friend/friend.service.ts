@@ -1,8 +1,8 @@
 import { EntityManager } from "@mikro-orm/postgresql";
-import { FriendRequest, FriendRequestStatus } from "./FriendRequest.entity";
+import { FriendRequest, FriendRequestStatus } from "./FriendRequest.entity.js";
 
-import { User } from "../auth/User.entity";
-import { AppError } from "../../common/errors/AppError";
+import { User } from "../auth/User.entity.js";
+import { AppError } from "../../common/errors/AppError.js";
 
 export class FriendService {
   constructor(private em: EntityManager) {}
@@ -71,8 +71,8 @@ export class FriendService {
       throw new AppError("Friend request not found", 404);
     }
 
-    if (req.receiver.id == currentUserId) {
-      throw new AppError("This is not allowed :(", 403);
+    if (req.receiver.id !== currentUserId) {
+      throw new AppError("Only the receiver can respond to this request", 403);
     }
 
     req.status =

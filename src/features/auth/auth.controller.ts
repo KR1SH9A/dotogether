@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { AuthService } from "./auth.service";
-import { validate } from "../../common/middleware/validate.middleware";
+import { AuthService } from "./auth.service.js";
+import { validate } from "../../common/middleware/validate.middleware.js";
 import {
   registerSchema,
   loginSchema,
   updateProfileSchema,
-} from "./auth.schema";
+} from "./auth.schema.js";
 
 const authRouter = Router();
 
@@ -58,7 +58,7 @@ authRouter.patch("/me", async (req: any, res, next) => {
     const parsed = updateProfileSchema.parse(req.body);
     const service = new AuthService(req.em);
     const result = await service.updateProfile(req.user.id, parsed);
-    req.json(result);
+    res.json(result);
   } catch (err) {
     next(err);
   }

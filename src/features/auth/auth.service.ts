@@ -1,9 +1,9 @@
 import { EntityManager } from "@mikro-orm/postgresql";
-import { User } from "./User.entity";
+import { User } from "./User.entity.js";
 import bcrypt from "bcrypt";
-import { AppError } from "../../common/errors/AppError";
+import { AppError } from "../../common/errors/AppError.js";
 import crypto from "crypto";
-import { Session } from "./Session.entity";
+import { Session } from "./Session.entity.js";
 
 export class AuthService {
   constructor(private em: EntityManager) {}

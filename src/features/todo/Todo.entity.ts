@@ -8,7 +8,7 @@ import {
 
 import { Collection } from "@mikro-orm/core";
 
-import { User } from "../auth/User.entity";
+import { User } from "../auth/User.entity.js";
 
 @Entity()
 export class Todo {

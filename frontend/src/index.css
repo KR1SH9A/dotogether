@@ -48,27 +48,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Animated Shadcn Subtle Background --- */
-body::before, body::after {
-  content: "";
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200vw;
-  height: 200vh;
-  z-index: -1;
-  background-image: 
-    radial-gradient(circle at 50% 50%, var(--glow-1), transparent 60%),
-    radial-gradient(circle at 80% 20%, var(--glow-2), transparent 50%);
-  filter: blur(80px);
-  animation: breathe 20s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-@keyframes breathe {
-  0% { transform: scale(1) translate(0, 0); }
-  100% { transform: scale(1.05) translate(2%, 2%); }
-}
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Space Grotesk', sans-serif;

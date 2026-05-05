@@ -72,6 +72,23 @@ export const AsciiLogo: React.FC<{ size?: 'small' | 'large' }> = ({ size = 'larg
         title={!isCooldown ? "Pet the cat!" : "The cat is resting..."}
       >
         {currentCat}
+        {isCooldown && (
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 3, ease: "linear" }}
+            style={{
+              position: "absolute",
+              bottom: "-4px",
+              left: 0,
+              right: 0,
+              height: "2px",
+              backgroundColor: "var(--accent)",
+              borderRadius: "2px",
+              transformOrigin: "left"
+            }}
+          />
+        )}
       </motion.div>
       <div style={{ whiteSpace: 'pre' }}>
         {textOnly}

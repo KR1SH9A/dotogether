@@ -3,6 +3,7 @@ import "dotenv/config";
 import { defineConfig } from "@mikro-orm/postgresql";
 import { Migrator } from "@mikro-orm/migrations";
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
+import { GeneratedCacheAdapter } from "@mikro-orm/core";
 
 //manually introducing entities for now,
 import { User } from "../features/auth/User.entity.js";
@@ -23,6 +24,7 @@ export default defineConfig({
   metadataProvider: TsMorphMetadataProvider,
   metadataCache: { 
     enabled: process.env.NODE_ENV === "production",
+    ...(process.env.NODE_ENV === "production" ? { adapter: GeneratedCacheAdapter } : {}),
     options: { cacheDir: process.cwd() + '/temp' }
   },
   entities: [User, Session, FriendRequest, Todo],

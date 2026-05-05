@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "npx mikro-orm cache:generate",
+    "build": "npx mikro-orm cache:generate --combined",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "mikro-orm": {

@@ -4,7 +4,7 @@ import {
   Property,
   ManyToOne,
   ManyToMany,
-} from "@mikro-orm/decorators/legacy";
+} from "@mikro-orm/decorators/es";
 
 import { Collection } from "@mikro-orm/core";
 
@@ -12,22 +12,22 @@ import { User } from "../auth/User.entity.js";
 
 @Entity()
 export class Todo {
-  @PrimaryKey({ type: 'number', autoincrement: true })
+  @PrimaryKey({ autoincrement: true })
   id!: number;
 
-  @Property({ type: 'string' })
+  @Property()
   name!: string;
 
-  @Property({ type: 'boolean' })
+  @Property()
   isCompleted: boolean = false;
 
-  @Property({ type: 'number' })
+  @Property()
   createdOn: number = Math.floor(Date.now() / 1000);
 
-  @Property({ type: 'string', nullable: true })
+  @Property({ nullable: true })
   about?: string;
 
-  @Property({ type: 'date', nullable: true })
+  @Property({ nullable: true })
   reminderTime?: Date | null;
 
   @ManyToOne(() => User)

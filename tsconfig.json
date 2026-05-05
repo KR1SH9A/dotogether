@@ -2,8 +2,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "dist",
-
-    "useDefineForClassFields": false,
+    "useDefineForClassFields": true,
 
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -18,8 +17,8 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
 
     "strict": true,
     "noUncheckedSideEffectImports": true,

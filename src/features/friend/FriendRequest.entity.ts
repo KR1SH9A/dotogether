@@ -6,7 +6,7 @@ import {
   ManyToOne,
   Unique,
   Index,
-} from "@mikro-orm/decorators/legacy";
+} from "@mikro-orm/decorators/es";
 
 import { User } from "../auth/User.entity.js";
 
@@ -21,7 +21,7 @@ export enum FriendRequestStatus {
 @Index({ properties: ["sender"] })
 @Index({ properties: ["receiver"] })
 export class FriendRequest {
-  @PrimaryKey({ type: 'number', autoincrement: true })
+  @PrimaryKey({ autoincrement: true })
   id!: number;
 
   @ManyToOne(() => User, { nullable: false })
@@ -33,6 +33,6 @@ export class FriendRequest {
   @Enum(() => FriendRequestStatus)
   status: FriendRequestStatus = FriendRequestStatus.PENDING;
 
-  @Property({ type: 'date' })
+  @Property()
   createdAt: Date = new Date();
 }

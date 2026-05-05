@@ -3,18 +3,18 @@ import {
   PrimaryKey,
   Property,
   ManyToOne,
-} from "@mikro-orm/decorators/legacy";
+} from "@mikro-orm/decorators/es";
 
 import { User } from "./User.entity.js";
 
 @Entity()
 export class Session {
-  @PrimaryKey({ type: 'string' })
+  @PrimaryKey()
   id!: string;
 
   @ManyToOne(() => User)
   user!: User;
 
-  @Property({ type: 'date' })
+  @Property()
   createdAt: Date = new Date();
 }

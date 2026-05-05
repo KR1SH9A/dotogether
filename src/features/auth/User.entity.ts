@@ -3,7 +3,7 @@ import {
   PrimaryKey,
   Property,
   OneToMany,
-} from "@mikro-orm/decorators/es";
+} from "@mikro-orm/decorators/legacy";
 
 import { Collection } from "@mikro-orm/core";
 import { Todo } from "../todo/Todo.entity.js";
@@ -11,16 +11,16 @@ import { FriendRequest } from "../friend/FriendRequest.entity.js";
 
 @Entity()
 export class User {
-  @PrimaryKey()
+  @PrimaryKey({ type: 'number', autoincrement: true })
   id!: number;
 
-  @Property()
+  @Property({ type: 'string' })
   username!: string;
 
-  @Property({ unique: true })
+  @Property({ type: 'string', unique: true })
   email!: string;
 
-  @Property()
+  @Property({ type: 'string' })
   passwordHash!: string;
 
   @OneToMany(() => Todo, (todo) => todo.owner)

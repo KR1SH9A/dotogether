@@ -2,7 +2,7 @@
 import "dotenv/config";
 import { defineConfig } from "@mikro-orm/postgresql";
 import { Migrator } from "@mikro-orm/migrations";
-import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
+import { ReflectMetadataProvider } from "@mikro-orm/decorators/legacy";
 
 //manually introducing entities for now,
 import { User } from "../features/auth/User.entity.js";
@@ -20,7 +20,7 @@ export default defineConfig({
     },
   },
 
-  metadataProvider: TsMorphMetadataProvider,
+  metadataProvider: ReflectMetadataProvider,
   metadataCache: { enabled: false },
   entities: [User, Session, FriendRequest, Todo],
   // entitiesTs: ["src/features/**/*.entity.ts"],

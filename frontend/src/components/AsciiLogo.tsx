@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export const AsciiLogo: React.FC<{ size?: 'small' | 'large' }> = ({ size = 'large' }) => {
   const isLarge = size === 'large';

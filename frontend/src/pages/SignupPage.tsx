@@ -102,7 +102,7 @@ export const SignupPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              minLength={6}
+              minLength={8}
             />
           </div>
           

@@ -21,6 +21,7 @@ export default defineConfig({
   },
 
   metadataProvider: TsMorphMetadataProvider,
+  metadataCache: { enabled: false },
   entities: [User, Session, FriendRequest, Todo],
   // entitiesTs: ["src/features/**/*.entity.ts"],
 

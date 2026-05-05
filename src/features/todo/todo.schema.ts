@@ -7,11 +7,11 @@ export const createTodoSchema = z.object({
 });
 
 export const updateTodoSchema = z.object({
-  name: z.string().optional(),
+  name: z.string().min(1).optional(),
   about: z.string().optional(),
   reminderTime: z.coerce.date().nullable().optional(),
 });
 
 export const addParticipantsSchema = z.object({
-  userIds: z.array(z.number()),
+  userIds: z.array(z.number().int().positive()),
 });

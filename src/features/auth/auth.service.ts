@@ -27,10 +27,18 @@ export class AuthService {
     user.passwordHash = hashedPassword;
     user.username = username;
 
+    const session = new Session();
+    session.id = crypto.randomUUID();
+    session.user = user;
+
     this.em.persist(user);
+    this.em.persist(session);
     await this.em.flush();
 
-    return this.sanitizeUser(user);
+    return {
+      sessionId: session.id,
+      user: { id: user.id, email: user.email, username: user.username },
+    };
   }
 
   //for login with basic session creation for now
@@ -58,6 +66,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        username: user.username,
       },
     };
   }

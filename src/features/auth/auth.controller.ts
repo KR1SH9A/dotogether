@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthService } from "./auth.service.js";
 import { validate } from "../../common/middleware/validate.middleware.js";
+import { requireUser } from "../../common/middleware/auth.middleware.js";
 import {
   registerSchema,
   loginSchema,
@@ -53,7 +54,7 @@ authRouter.post("/logout", async (req: any, res, next) => {
   }
 });
 
-authRouter.patch("/me", async (req: any, res, next) => {
+authRouter.patch("/me", requireUser, async (req: any, res, next) => {
   try {
     const parsed = updateProfileSchema.parse(req.body);
     const service = new AuthService(req.em);

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiClient } from '../api/client';
 
 
 interface User {
@@ -47,11 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    apiClient.post('/auth/logout').catch(() => {});
     setSessionId(null);
     setUser(null);
     localStorage.removeItem('sessionId');
     localStorage.removeItem('user');
-    // optionally call backend logout
   };
 
   return (

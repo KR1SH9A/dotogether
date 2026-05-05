@@ -61,7 +61,7 @@ export const FriendsPage: React.FC = () => {
       <h2 style={{ marginBottom: '32px' }}>Your Friends</h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <motion.div layout className="card" whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
             <h3 style={{ marginBottom: '16px', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>

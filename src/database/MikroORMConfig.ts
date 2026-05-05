@@ -21,7 +21,10 @@ export default defineConfig({
   },
 
   metadataProvider: TsMorphMetadataProvider,
-  metadataCache: { enabled: process.env.NODE_ENV === "production" },
+  metadataCache: { 
+    enabled: process.env.NODE_ENV === "production",
+    options: { cacheDir: process.cwd() + '/temp' }
+  },
   entities: [User, Session, FriendRequest, Todo],
   // entitiesTs: ["src/features/**/*.entity.ts"],
 

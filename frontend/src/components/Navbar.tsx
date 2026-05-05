@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { LogOut, Home, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from './ThemeToggle';
+import { AsciiLogo } from './AsciiLogo';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -33,41 +34,47 @@ export const Navbar: React.FC = () => {
         zIndex: 10
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Link to="/" style={{ fontWeight: 'bold', fontSize: '20px', color: 'var(--text-main)', fontFamily: "'Space Grotesk', sans-serif" }}>
-            DoTogether
-          </Link>
-        </motion.div>
+      {/* Left Area: Dashboard & Friends */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
         {user && (
           <>
-            <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
+            <Link to="/dashboard" className="hover-danger" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '16px', transition: 'color 0.2s' }}>
               <Home size={18} /> Dashboard
             </Link>
-            <Link to="/friends" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
+            <Link to="/friends" className="hover-danger" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '16px', transition: 'color 0.2s' }}>
               <Users size={18} /> Friends
             </Link>
           </>
         )}
       </div>
 
-      <div>
+      {/* Center Area: Logo */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <AsciiLogo size="small" />
+          </Link>
+        </motion.div>
+      </div>
+
+      {/* Right Area: Controls & Profile */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '16px' }}>
         {user ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <>
             <ThemeToggle />
-            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>
               Hi, {user.username}
             </span>
-            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--error)' }}>
+            <button onClick={handleLogout} className="hover-danger" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--error)', fontSize: '16px', transition: 'opacity 0.2s' }}>
               <LogOut size={18} /> Logout
             </button>
-          </div>
+          </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <>
             <ThemeToggle />
             <Link to="/login" className="btn-secondary" style={{ padding: '8px 16px' }}>Login</Link>
             <Link to="/signup" className="btn-primary" style={{ padding: '8px 16px' }}>Sign Up</Link>
-          </div>
+          </>
         )}
       </div>
     </motion.nav>

@@ -18,8 +18,9 @@ export const LandingPage: React.FC = () => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
           style={{
-            backgroundColor: 'rgba(210, 168, 134, 0.2)',
-            color: 'var(--accent-hover)',
+            backgroundColor: 'var(--bg-secondary)',
+            color: 'var(--text-main)',
+            border: '1px solid var(--border-color)',
             padding: '8px 16px',
             borderRadius: '24px',
             fontSize: '12px',
@@ -31,7 +32,26 @@ export const LandingPage: React.FC = () => {
           APP IS IN EARLY DEVELOPMENT (WIP)
         </motion.div>
 
-        <AsciiLogo size="large" />
+        <div style={{ position: 'relative' }}>
+          <AsciiLogo size="large" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '-20px',
+              fontSize: '10px',
+              color: 'var(--text-muted)',
+              opacity: 0.5,
+              transform: 'rotate(-10deg)',
+              pointerEvents: 'none'
+            }}
+          >
+            (psst... click the cat)
+          </motion.div>
+        </div>
 
         <motion.h1
           initial={{ y: 30, opacity: 0 }}
@@ -85,7 +105,7 @@ export const LandingPage: React.FC = () => {
           Made with <Heart size={14} color="var(--error)" /> for accountability
         </div>
         <div>
-          Thank you visitors for checking my project — <strong>KRI5HNA</strong>
+          Thank you for checking my project — <strong>KRI5HNA</strong>
         </div>
       </motion.footer>
     </div>

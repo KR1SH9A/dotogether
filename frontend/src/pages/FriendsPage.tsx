@@ -121,7 +121,7 @@ export const FriendsPage: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {friends.map(friend => (
                 <div key={friend.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '8px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bg-color)', fontWeight: 'bold' }}>
                     {friend.username.charAt(0).toUpperCase()}
                   </div>
                   <div>

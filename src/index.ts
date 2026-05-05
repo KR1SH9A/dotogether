@@ -11,28 +11,36 @@ import todoRouter from "./features/todo/todo.controller";
 //middleware here
 import { errorMiddleWare } from "./common/middleware/error.middleware";
 
-const start = async () => {
-  const dotogether = express();
-  dotogether.use(cors());
-  dotogether.use(express.json());
+const dotogether = express();
+dotogether.use(cors());
+dotogether.use(express.json());
 
-  const orm = await InitORM();
+let ormInstance: any = null;
 
-  dotogether.use((req: any, _res, next) => {
-    req.em = orm.em.fork();
-    next();
-  });
+// Lazy initialize ORM for Vercel Serverless cold starts
+dotogether.use(async (req: any, _res, next) => {
+  if (!ormInstance) {
+    ormInstance = await InitORM();
+  }
+  req.em = ormInstance.em.fork();
+  next();
+});
 
-  //routes are here, I am making the rest of them
-  dotogether.use("/auth", authRouter);
-  dotogether.use("/friends", friendRouter);
-  dotogether.use("/todos", todoRouter);
+const apiRouter = express.Router();
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/friends", friendRouter);
+apiRouter.use("/todos", todoRouter);
 
-  dotogether.use(errorMiddleWare);
+// Mount all backend routes under /api
+dotogether.use("/api", apiRouter);
 
+dotogether.use(errorMiddleWare);
+
+// Only listen locally, Vercel will export the app
+if (process.env.NODE_ENV !== "production") {
   dotogether.listen(3000, () => {
     console.log("DoTogether is running here -> http://localhost:3000");
   });
-};
+}
 
-start();
+export default dotogether;

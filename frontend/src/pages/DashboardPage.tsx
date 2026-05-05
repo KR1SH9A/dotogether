@@ -4,6 +4,7 @@ import { apiClient, handleApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { AsciiLoader } from '../components/AsciiLoader';
 import { Plus, Check, Trash2, Users, Clock } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface Todo {
   id: number;
@@ -143,7 +144,7 @@ export const DashboardPage: React.FC = () => {
                   <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: 'var(--text-main)' }}>Add Friends to this Goal:</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {friends.map(friend => (
-                      <label key={friend.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', background: 'rgba(255, 255, 255, 0.5)', padding: '6px 12px', borderRadius: '16px', border: selectedFriends.includes(friend.id) ? '1px solid var(--accent)' : '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <label key={friend.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '16px', border: selectedFriends.includes(friend.id) ? '1px solid var(--accent)' : '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.2s' }}>
                         <input
                           type="checkbox"
                           style={{ display: 'none' }}
@@ -225,9 +226,9 @@ export const DashboardPage: React.FC = () => {
                     {todo.name}
                   </h3>
                   {todo.about && (
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '12px', whiteSpace: 'pre-wrap' }}>
-                      {todo.about}
-                    </p>
+                    <div className="markdown-content" style={{ marginBottom: '16px' }}>
+                      <ReactMarkdown>{todo.about}</ReactMarkdown>
+                    </div>
                   )}
                   
                   <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px', fontSize: '12px', color: 'var(--text-muted)' }}>

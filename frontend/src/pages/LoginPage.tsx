@@ -36,7 +36,13 @@ export const LoginPage: React.FC = () => {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="card"
-        style={{ width: '100%', maxWidth: '400px' }}
+        style={{ 
+          width: '100%', 
+          maxWidth: '400px',
+          backgroundColor: 'color-mix(in srgb, var(--bg-color) 70%, transparent)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)'
+        }}
       >
         <h2 style={{ textAlign: 'center', marginBottom: '8px' }}>Welcome Back</h2>
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '24px' }}>Log in to continue DoTogether</p>
@@ -46,8 +52,9 @@ export const LoginPage: React.FC = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             style={{ 
-              backgroundColor: 'rgba(229, 115, 115, 0.1)', 
+              backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', 
               color: 'var(--error)', 
+              border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)',
               padding: '12px', 
               borderRadius: '8px',
               marginBottom: '16px',

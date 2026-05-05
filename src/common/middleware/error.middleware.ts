@@ -10,6 +10,10 @@ export const errorMiddleWare = (
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({ error: err.message });
   }
-  console.error(err);
-  res.status(500).json({ error: "Server Error Observed" });
+  console.error("Vercel Backend Error:", err);
+  res.status(500).json({ 
+    error: "Server Error Observed", 
+    details: err.message,
+    stack: err.stack 
+  });
 };

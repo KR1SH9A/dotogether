@@ -147,3 +147,10 @@ todo.db
 #for annoying DS Store files
 .DS_Store
 *.DS_Store
+
+
+#for dist files
+dist/
+
+#temp files
+temp/

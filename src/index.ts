@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import "reflect-metadata";
 import { InitORM } from "./database/InitORM.js";
 
 //controllers here
@@ -20,7 +19,7 @@ dotogether.use(express.json());
 
 let ormInstance: any = null;
 
-// Lazy initialize ORM for Vercel Serverless cold starts
+
 dotogether.use(async (req: any, _res, next) => {
   try {
     if (!ormInstance) {
@@ -43,12 +42,11 @@ dotogether.use("/api", apiRouter);
 
 dotogether.use(errorMiddleWare);
 
-// Only listen locally, Vercel will export the app
-//not hosted on vercel
-if (process.env.NODE_ENV !== "production") {
-  dotogether.listen(3000, () => {
-    console.log("DoTogether is running here -> http://localhost:3000");
-  });
-}
+
+const PORT = process.env.PORT || 3000;
+
+dotogether.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 export default dotogether;

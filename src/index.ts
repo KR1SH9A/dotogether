@@ -44,6 +44,7 @@ dotogether.use("/api", apiRouter);
 dotogether.use(errorMiddleWare);
 
 // Only listen locally, Vercel will export the app
+//not hosted on vercel
 if (process.env.NODE_ENV !== "production") {
   dotogether.listen(3000, () => {
     console.log("DoTogether is running here -> http://localhost:3000");

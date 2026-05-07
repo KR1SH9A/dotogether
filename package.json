@@ -21,6 +21,8 @@
   "type": "module",
   "dependencies": {
     "@mikro-orm/core": "^7.0.13",
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3",
     "@mikro-orm/decorators": "^7.0.13",
     "@mikro-orm/entity-generator": "^7.0.13",
     "@mikro-orm/migrations": "^7.0.13",
@@ -44,10 +46,8 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.6.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
+    "tsx": "^4.21.0"
   }
 }

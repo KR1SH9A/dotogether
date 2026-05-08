@@ -12,7 +12,8 @@ import { errorMiddleWare } from "./common/middleware/error.middleware.js";
 
 const dotogether = express();
 dotogether.use(cors({
-  origin: process.env.ALLOWED_ORIGIN === "*" ? true : (process.env.ALLOWED_ORIGIN || true),
+  // origin: process.env.ALLOWED_ORIGIN === "*" ? true : (process.env.ALLOWED_ORIGIN || true),
+    origin: process.env.ALLOWED_ORIGIN,
   credentials: true,
 }));
 dotogether.use(express.json());

@@ -16,6 +16,50 @@ interface Todo {
   reminderTime?: string | null;
 }
 
+const toLocalInputValue = (d: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+const reminderPresets: { label: string; compute: () => Date }[] = [
+  {
+    label: 'Tonight 8pm',
+    compute: () => { const d = new Date(); d.setHours(20, 0, 0, 0); return d; },
+  },
+  {
+    label: 'Tomorrow 9am',
+    compute: () => { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d; },
+  },
+  {
+    label: 'This weekend',
+    compute: () => {
+      const d = new Date();
+      const daysUntilSat = (6 - d.getDay() + 7) % 7 || 7;
+      d.setDate(d.getDate() + daysUntilSat);
+      d.setHours(10, 0, 0, 0);
+      return d;
+    },
+  },
+  {
+    label: 'Next week',
+    compute: () => { const d = new Date(); d.setDate(d.getDate() + 7); d.setHours(9, 0, 0, 0); return d; },
+  },
+];
+
+const formatReminderLabel = (value: string): string => {
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  const now = new Date();
+  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const dayDiff = Math.round((startOfDay(d) - startOfDay(now)) / 86400000);
+  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  if (dayDiff === 0) return `Today at ${time}`;
+  if (dayDiff === 1) return `Tomorrow at ${time}`;
+  if (dayDiff === -1) return `Yesterday at ${time}`;
+  if (dayDiff > 1 && dayDiff < 7) return `${d.toLocaleDateString(undefined, { weekday: 'long' })} at ${time}`;
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+};
+
 export const DashboardPage: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,41 +95,64 @@ export const DashboardPage: React.FC = () => {
   const handleAddTodo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    
+
+    const tempId = -Date.now();
+    const reminderIso = reminderTime ? new Date(reminderTime).toISOString() : null;
+    const optimistic: Todo = {
+      id: tempId,
+      name: newName,
+      about: newAbout,
+      isCompleted: false,
+      owner: { id: user?.id ?? 0, username: user?.username ?? '' },
+      participants: friends
+        .filter(f => selectedFriends.includes(f.id))
+        .map(f => ({ id: f.id, username: f.username })),
+      reminderTime: reminderIso,
+    };
+    const friendIds = selectedFriends;
+
+    setTodos(prev => [optimistic, ...prev]);
+    setNewName('');
+    setNewAbout('');
+    setReminderTime('');
+    setSelectedFriends([]);
+    setIsAdding(false);
+
     try {
-      const payload: any = { name: newName, about: newAbout };
-      if (reminderTime) {
-        payload.reminderTime = new Date(reminderTime).toISOString();
-      }
+      const payload: any = { name: optimistic.name, about: optimistic.about };
+      if (reminderIso) payload.reminderTime = reminderIso;
       const res = await apiClient.post('/todos', payload);
-      if (selectedFriends.length > 0) {
-        await apiClient.post(`/todos/${res.data.id}/participants`, { userIds: selectedFriends });
+      if (friendIds.length > 0) {
+        await apiClient.post(`/todos/${res.data.id}/participants`, { userIds: friendIds });
       }
-      setNewName('');
-      setNewAbout('');
-      setReminderTime('');
-      setSelectedFriends([]);
-      setIsAdding(false);
-      fetchData();
+      setTodos(prev => prev.map(t =>
+        t.id === tempId
+          ? { ...res.data, owner: optimistic.owner, participants: optimistic.participants }
+          : t
+      ));
     } catch (err) {
+      setTodos(prev => prev.filter(t => t.id !== tempId));
       alert(handleApiError(err));
     }
   };
 
   const toggleTodo = async (id: number) => {
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, isCompleted: !t.isCompleted } : t));
     try {
       await apiClient.post(`/todos/${id}/toggle`);
-      setTodos(todos.map(t => t.id === id ? { ...t, isCompleted: !t.isCompleted } : t));
     } catch (err) {
+      setTodos(prev => prev.map(t => t.id === id ? { ...t, isCompleted: !t.isCompleted } : t));
       alert(handleApiError(err));
     }
   };
 
   const deleteTodo = async (id: number) => {
+    const prev = todos;
+    setTodos(todos.filter(t => t.id !== id));
     try {
       await apiClient.delete(`/todos/${id}`);
-      setTodos(todos.filter(t => t.id !== id));
     } catch (err) {
+      setTodos(prev);
       alert(handleApiError(err));
     }
   };
@@ -129,8 +196,50 @@ export const DashboardPage: React.FC = () => {
                 rows={3}
                 style={{ resize: 'vertical', marginBottom: '8px' }}
               />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)' }}>Set a Reminder/Deadline (Optional)</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {reminderPresets.map(preset => {
+                    const presetValue = toLocalInputValue(preset.compute());
+                    const isActive = reminderTime === presetValue;
+                    return (
+                      <button
+                        type="button"
+                        key={preset.label}
+                        onClick={() => setReminderTime(presetValue)}
+                        style={{
+                          fontSize: '12px',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border-color)'}`,
+                          background: isActive ? 'var(--accent)' : 'var(--bg-secondary)',
+                          color: isActive ? 'white' : 'var(--text-muted)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                  {reminderTime && (
+                    <button
+                      type="button"
+                      onClick={() => setReminderTime('')}
+                      style={{
+                        fontSize: '12px',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)',
+                        background: 'transparent',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <input
                   type="datetime-local"
                   className="input"
@@ -138,6 +247,11 @@ export const DashboardPage: React.FC = () => {
                   onChange={(e) => setReminderTime(e.target.value)}
                   style={{ color: reminderTime ? 'var(--text-main)' : 'var(--text-muted)' }}
                 />
+                {reminderTime && (
+                  <div style={{ fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Clock size={12} /> {formatReminderLabel(reminderTime)}
+                  </div>
+                )}
               </div>
               {friends.length > 0 && (
                 <div style={{ marginTop: '16px' }}>

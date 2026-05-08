@@ -9,8 +9,14 @@ import todoRouter from "./features/todo/todo.controller.js";
 
 //middleware here
 import { errorMiddleWare } from "./common/middleware/error.middleware.js";
+import { createServer, Server } from "node:http";
 
 const dotogether = express();
+
+const server = createServer(dotogether);
+
+const io = new Server(server);
+
 dotogether.use(cors({
   // origin: process.env.ALLOWED_ORIGIN === "*" ? true : (process.env.ALLOWED_ORIGIN || true),
     origin: process.env.ALLOWED_ORIGIN,

@@ -1,5 +1,6 @@
 import { User } from "../auth/User.entity.js";
 import { Todo } from "./Todo.entity.js";
+import { TodoReaction, ReactionType } from "./TodoReaction.entity.js";
 import { AppError } from "../../common/errors/AppError.js";
 import {
   FriendRequest,
@@ -46,7 +47,7 @@ export class TodoService {
         id: todoId,
       },
       {
-        populate: ["owner", "participants"],
+        populate: ["owner", "participants", "reactions", "reactions.user"],
       },
     );
 
@@ -96,7 +97,7 @@ export class TodoService {
       {
         $or: [{ owner: userId }, { participants: userId }],
       },
-      { populate: ["owner", "participants"] },
+      { populate: ["owner", "participants", "reactions", "reactions.user"] },
     );
   }
 
@@ -200,5 +201,56 @@ export class TodoService {
     todo.participants.remove(participant);
 
     await this.em.flush();
+  }
+
+  //set or switch a like/dislike reaction (participants only)
+  async setReaction(userId: number, todoId: number, reaction: ReactionType) {
+    const todo = await this.getTodoHelper(todoId);
+
+    if (todo.owner.id === userId) {
+      throw new AppError("Owners cannot react to their own todo", 403);
+    }
+    if (!this.isParticipant(userId, todo)) {
+      throw new AppError("Only participants can react", 403);
+    }
+
+    const existing = await this.em.findOne(TodoReaction, {
+      todo: todoId,
+      user: userId,
+    });
+
+    if (existing) {
+      existing.reaction = reaction;
+    } else {
+      const user = await this.userHelper(userId);
+      const r = new TodoReaction();
+      r.todo = todo;
+      r.user = user;
+      r.reaction = reaction;
+      this.em.persist(r);
+    }
+
+    await this.em.flush();
+    return this.getTodoHelper(todoId);
+  }
+
+  //remove a participant's reaction
+  async removeReaction(userId: number, todoId: number) {
+    const todo = await this.getTodoHelper(todoId);
+
+    if (todo.owner.id === userId) {
+      throw new AppError("Owners have no reaction to remove", 403);
+    }
+
+    const existing = await this.em.findOne(TodoReaction, {
+      todo: todoId,
+      user: userId,
+    });
+
+    if (existing) {
+      await this.em.remove(existing).flush();
+    }
+
+    return this.getTodoHelper(todoId);
   }
 }

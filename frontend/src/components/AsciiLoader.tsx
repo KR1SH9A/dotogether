@@ -8,7 +8,12 @@ const catFrames = [
   ` /\\_/\\\n( ^.^ )\n > ^ <`
 ];
 
-export const AsciiLoader: React.FC = () => {
+interface AsciiLoaderProps {
+  size?: number;
+  compact?: boolean;
+}
+
+export const AsciiLoader: React.FC<AsciiLoaderProps> = ({ size = 20, compact = false }) => {
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
@@ -27,9 +32,10 @@ export const AsciiLoader: React.FC = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        fontSize: '20px',
-        color: 'var(--text-main)',
-        minHeight: '100px'
+        fontSize: `${size}px`,
+        lineHeight: 1.1,
+        color: 'currentColor',
+        minHeight: compact ? undefined : '100px',
       }}
     >
       {catFrames[frame]}

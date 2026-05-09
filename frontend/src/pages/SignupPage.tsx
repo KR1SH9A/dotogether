@@ -112,7 +112,7 @@ export const SignupPage: React.FC = () => {
             style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '48px' }}
             disabled={isLoading}
           >
-            {isLoading ? <AsciiLoader /> : 'Sign Up'}
+            {isLoading ? <AsciiLoader size={10} compact /> : 'Sign Up'}
           </button>
         </form>
 

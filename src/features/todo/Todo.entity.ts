@@ -4,11 +4,13 @@ import {
   Property,
   ManyToOne,
   ManyToMany,
+  OneToMany,
 } from "@mikro-orm/decorators/es";
 
 import { Collection } from "@mikro-orm/core";
 
 import { User } from "../auth/User.entity.js";
+import { TodoReaction } from "./TodoReaction.entity.js";
 
 @Entity()
 export class Todo {
@@ -35,4 +37,7 @@ export class Todo {
 
   @ManyToMany(() => User)
   participants = new Collection<User>(this);
+
+  @OneToMany(() => TodoReaction, (r) => r.todo)
+  reactions = new Collection<TodoReaction>(this);
 }

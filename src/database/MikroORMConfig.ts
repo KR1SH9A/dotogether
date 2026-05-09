@@ -10,6 +10,7 @@ import { User } from "../features/auth/User.entity.js";
 import { Session } from "../features/auth/Session.entity.js";
 import { FriendRequest } from "../features/friend/FriendRequest.entity.js";
 import { Todo } from "../features/todo/Todo.entity.js";
+import { TodoReaction } from "../features/todo/TodoReaction.entity.js";
 
 export default defineConfig({
   dbName: process.env.DATABASE_NAME || "dummy_db",
@@ -26,7 +27,7 @@ export default defineConfig({
 
   metadataProvider: TsMorphMetadataProvider,
 
-  entities: [User, Session, FriendRequest, Todo],
+  entities: [User, Session, FriendRequest, Todo, TodoReaction],
 
   debug: process.env.NODE_ENV !== "production",
 

@@ -99,7 +99,7 @@ export const LoginPage: React.FC = () => {
             style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '48px' }}
             disabled={isLoading}
           >
-            {isLoading ? <AsciiLoader /> : 'Log In'}
+            {isLoading ? <AsciiLoader size={10} compact /> : 'Log In'}
           </button>
         </form>
 

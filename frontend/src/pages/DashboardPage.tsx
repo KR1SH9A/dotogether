@@ -5,110 +5,12 @@ import { todosApi } from '../api/todos';
 import type { Todo, ReactionType } from '../types/todo';
 import { useAuth } from '../context/AuthContext';
 import { AsciiLoader } from '../components/AsciiLoader';
-import { Plus, Check, Trash2, Users, Clock, Pencil, X, UserPlus } from 'lucide-react';
+import { ReminderPicker } from '../components/ReminderPicker';
+import { formatReminderLabel } from '../utils/datetime';
+import { Plus, Check, Trash2, Users, Clock, Pencil, X, UserPlus, Heart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-const toLocalInputValue = (d: Date): string => {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
-
-const isoToLocalInput = (iso?: string | null): string => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? '' : toLocalInputValue(d);
-};
-
-const reminderPresets: { label: string; compute: () => Date }[] = [
-  { label: 'Tonight 8pm', compute: () => { const d = new Date(); d.setHours(20, 0, 0, 0); return d; } },
-  { label: 'Tomorrow 9am', compute: () => { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d; } },
-  {
-    label: 'This weekend',
-    compute: () => {
-      const d = new Date();
-      const daysUntilSat = (6 - d.getDay() + 7) % 7 || 7;
-      d.setDate(d.getDate() + daysUntilSat);
-      d.setHours(10, 0, 0, 0);
-      return d;
-    },
-  },
-  { label: 'Next week', compute: () => { const d = new Date(); d.setDate(d.getDate() + 7); d.setHours(9, 0, 0, 0); return d; } },
-];
-
-const formatReminderLabel = (value: string): string => {
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return '';
-  const now = new Date();
-  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
-  const dayDiff = Math.round((startOfDay(d) - startOfDay(now)) / 86400000);
-  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  if (dayDiff === 0) return `Today at ${time}`;
-  if (dayDiff === 1) return `Tomorrow at ${time}`;
-  if (dayDiff === -1) return `Yesterday at ${time}`;
-  if (dayDiff > 1 && dayDiff < 7) return `${d.toLocaleDateString(undefined, { weekday: 'long' })} at ${time}`;
-  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-};
-
 interface Friend { id: number; username: string; email?: string; }
-
-const ReminderInput: React.FC<{ value: string; onChange: (v: string) => void }> = ({ value, onChange }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-      {reminderPresets.map(preset => {
-        const presetValue = toLocalInputValue(preset.compute());
-        const isActive = value === presetValue;
-        return (
-          <button
-            type="button"
-            key={preset.label}
-            onClick={() => onChange(presetValue)}
-            style={{
-              fontSize: '12px',
-              padding: '4px 10px',
-              borderRadius: '12px',
-              border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border-color)'}`,
-              background: isActive ? 'var(--accent)' : 'var(--bg-secondary)',
-              color: isActive ? 'var(--bg-color)' : 'var(--text-muted)',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-          >
-            {preset.label}
-          </button>
-        );
-      })}
-      {value && (
-        <button
-          type="button"
-          onClick={() => onChange('')}
-          style={{
-            fontSize: '12px',
-            padding: '4px 10px',
-            borderRadius: '12px',
-            border: '1px solid var(--border-color)',
-            background: 'transparent',
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-          }}
-        >
-          Clear
-        </button>
-      )}
-    </div>
-    <input
-      type="datetime-local"
-      className="input"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ color: value ? 'var(--text-main)' : 'var(--text-muted)' }}
-    />
-    {value && (
-      <div style={{ fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <Clock size={12} /> {formatReminderLabel(value)}
-      </div>
-    )}
-  </div>
-);
 
 const ownerBadgeStyle: React.CSSProperties = {
   fontSize: '10px',
@@ -119,6 +21,24 @@ const ownerBadgeStyle: React.CSSProperties = {
   borderRadius: '10px',
 };
 
+const MetaRow: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '24px' }}>
+    <div style={{
+      width: '20px',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'var(--text-muted)',
+    }}>
+      {icon}
+    </div>
+    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px' }}>
+      {children}
+    </div>
+  </div>
+);
+
 export const DashboardPage: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,14 +47,14 @@ export const DashboardPage: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAbout, setNewAbout] = useState('');
-  const [reminderTime, setReminderTime] = useState('');
+  const [reminderTime, setReminderTime] = useState<string | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedFriends, setSelectedFriends] = useState<number[]>([]);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
   const [editAbout, setEditAbout] = useState('');
-  const [editReminder, setEditReminder] = useState('');
+  const [editReminder, setEditReminder] = useState<string | null>(null);
 
   const [managingId, setManagingId] = useState<number | null>(null);
   const [stagedAdds, setStagedAdds] = useState<number[]>([]);
@@ -163,7 +83,7 @@ export const DashboardPage: React.FC = () => {
     if (!newName.trim()) return;
 
     const tempId = -Date.now();
-    const reminderIso = reminderTime ? new Date(reminderTime).toISOString() : null;
+    const reminderIso = reminderTime;
     const optimistic: Todo = {
       id: tempId,
       name: newName,
@@ -183,7 +103,7 @@ export const DashboardPage: React.FC = () => {
     setTodos(prev => [optimistic, ...prev]);
     setNewName('');
     setNewAbout('');
-    setReminderTime('');
+    setReminderTime(null);
     setSelectedFriends([]);
     setIsAdding(false);
 
@@ -225,7 +145,7 @@ export const DashboardPage: React.FC = () => {
     setEditingId(todo.id);
     setEditName(todo.name);
     setEditAbout(todo.about ?? '');
-    setEditReminder(isoToLocalInput(todo.reminderTime));
+    setEditReminder(todo.reminderTime ?? null);
     setManagingId(null);
   };
 
@@ -233,12 +153,12 @@ export const DashboardPage: React.FC = () => {
     setEditingId(null);
     setEditName('');
     setEditAbout('');
-    setEditReminder('');
+    setEditReminder(null);
   };
 
   const saveEdit = async (id: number) => {
     if (!editName.trim()) return;
-    const reminderIso = editReminder ? new Date(editReminder).toISOString() : null;
+    const reminderIso = editReminder;
     const prev = todos;
     const patch = { name: editName, about: editAbout, reminderTime: reminderIso };
     setTodos(prev.map(t => t.id === id ? { ...t, ...patch } : t));
@@ -348,6 +268,7 @@ export const DashboardPage: React.FC = () => {
     const isEditing = editingId === todo.id;
     const isManaging = managingId === todo.id;
     const availableFriends = friends.filter(f => !todo.participants.some(p => p.id === f.id));
+    const ownerName = todo.owner.username + (todo.owner.id === user?.id ? ' (you)' : '');
 
     return (
       <motion.div
@@ -356,116 +277,144 @@ export const DashboardPage: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        whileHover={isEditing ? undefined : { scale: 1.01 }}
+        whileHover={isEditing ? undefined : { scale: 1.005 }}
         className="card"
         style={{
           display: 'flex',
-          gap: '16px',
-          alignItems: 'flex-start',
-          opacity: todo.isCompleted ? 0.6 : 1,
+          flexDirection: 'column',
+          gap: '14px',
+          opacity: todo.isCompleted ? 0.65 : 1,
           transition: 'opacity 0.2s ease, box-shadow 0.3s ease',
         }}
       >
-        <button
-          onClick={() => toggleTodo(todo.id)}
-          style={{
-            width: '24px',
-            height: '24px',
-            borderRadius: '50%',
-            border: `2px solid ${todo.isCompleted ? 'var(--success)' : 'var(--border-color)'}`,
-            backgroundColor: todo.isCompleted ? 'var(--success)' : 'transparent',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            marginTop: '4px',
-            flexShrink: 0,
-          }}
-        >
-          {todo.isCompleted && <Check size={14} />}
-        </button>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {isEditing ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <input
-                autoFocus
-                className="input"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                style={{ fontSize: '18px', fontWeight: 500 }}
-              />
-              <textarea
-                className="input"
-                value={editAbout}
-                onChange={(e) => setEditAbout(e.target.value)}
-                rows={3}
-                style={{ resize: 'vertical' }}
-              />
-              <ReminderInput value={editReminder} onChange={setEditReminder} />
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                <button type="button" onClick={cancelEdit} className="btn-secondary">Cancel</button>
-                <button type="button" onClick={() => saveEdit(todo.id)} className="btn-primary">Save</button>
-              </div>
+        {isEditing ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <input
+              autoFocus
+              className="input"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              style={{ fontSize: '18px', fontWeight: 500 }}
+            />
+            <textarea
+              className="input"
+              value={editAbout}
+              onChange={(e) => setEditAbout(e.target.value)}
+              rows={3}
+              style={{ resize: 'vertical' }}
+            />
+            <ReminderPicker value={editReminder} onChange={setEditReminder} idPrefix={`edit-${todo.id}`} />
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button type="button" onClick={cancelEdit} className="btn-secondary">Cancel</button>
+              <button type="button" onClick={() => saveEdit(todo.id)} className="btn-primary">Save</button>
             </div>
-          ) : (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                <h3 style={{
-                  fontSize: '18px',
-                  textDecoration: todo.isCompleted ? 'line-through' : 'none',
-                  color: todo.isCompleted ? 'var(--text-muted)' : 'var(--text-main)',
-                  margin: 0,
-                }}>
-                  {todo.name}
-                </h3>
-                <span style={{
-                  ...ownerBadgeStyle,
-                  background: isOwner ? 'var(--accent)' : 'transparent',
-                  color: isOwner ? 'var(--bg-color)' : 'var(--text-muted)',
-                  border: isOwner ? 'none' : '1px solid var(--border-color)',
-                }}>
-                  {isOwner ? 'Owner' : 'Participant'}
-                </span>
+          </div>
+        ) : (
+          <>
+            {/* Header: checkbox · title+badge · side actions */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <button
+                onClick={() => toggleTodo(todo.id)}
+                aria-label={todo.isCompleted ? 'Mark as not done' : 'Mark as done'}
+                style={{
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  border: `2px solid ${todo.isCompleted ? 'var(--success)' : 'var(--border-color)'}`,
+                  backgroundColor: todo.isCompleted ? 'var(--success)' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  marginTop: '2px',
+                  flexShrink: 0,
+                }}
+              >
+                {todo.isCompleted && <Check size={12} />}
+              </button>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h3 style={{
+                    fontSize: '17px',
+                    margin: 0,
+                    textDecoration: todo.isCompleted ? 'line-through' : 'none',
+                    color: todo.isCompleted ? 'var(--text-muted)' : 'var(--text-main)',
+                  }}>
+                    {todo.name}
+                  </h3>
+                  <span style={{
+                    ...ownerBadgeStyle,
+                    background: isOwner ? 'var(--accent)' : 'transparent',
+                    color: isOwner ? 'var(--bg-color)' : 'var(--text-muted)',
+                    border: isOwner ? 'none' : '1px solid var(--border-color)',
+                  }}>
+                    {isOwner ? 'Owner' : 'Participant'}
+                  </span>
+                </div>
+                {todo.about && (
+                  <div className="markdown-content" style={{ marginTop: '6px' }}>
+                    <ReactMarkdown>{todo.about}</ReactMarkdown>
+                  </div>
+                )}
               </div>
 
-              {todo.about && (
-                <div className="markdown-content" style={{ marginBottom: '12px' }}>
-                  <ReactMarkdown>{todo.about}</ReactMarkdown>
+              {isOwner && (
+                <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+                  <button
+                    onClick={() => startEdit(todo)}
+                    style={{ color: 'var(--text-muted)', padding: '6px' }}
+                    title="Edit"
+                    aria-label="Edit todo"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    onClick={() => deleteTodo(todo.id)}
+                    style={{ color: 'var(--text-muted)', padding: '6px' }}
+                    className="hover-danger"
+                    title="Delete"
+                    aria-label="Delete todo"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               )}
+            </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                <span style={{
-                  fontSize: '12px',
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-main)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}>
-                  <Users size={12} /> {todo.owner.username}{todo.owner.id === user?.id ? ' (you)' : ''}
+            {/* Meta rows aligned to title indent */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '34px' }}>
+              {todo.reminderTime && (
+                <MetaRow icon={<Clock size={14} />}>
+                  <span style={{ color: 'var(--accent)', fontSize: '13px' }}>
+                    {formatReminderLabel(todo.reminderTime)}
+                  </span>
+                </MetaRow>
+              )}
+
+              <MetaRow icon={<Users size={14} />}>
+                <span style={{ fontSize: '13px', color: 'var(--text-main)' }}>
+                  {ownerName}
+                  <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}> · owner</span>
                 </span>
                 {todo.participants.map(p => (
                   <span key={p.id} style={{
                     fontSize: '12px',
-                    padding: '3px 4px 3px 10px',
+                    padding: '2px 4px 2px 10px',
                     borderRadius: '12px',
                     background: 'var(--bg-secondary)',
                     border: '1px solid var(--border-color)',
                     color: 'var(--text-main)',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '4px',
+                    gap: '2px',
                   }}>
                     {p.username}{p.id === user?.id ? ' (you)' : ''}
                     {isOwner && (
                       <button
                         onClick={() => removeParticipant(todo.id, p.id)}
                         title={`Remove ${p.username}`}
+                        aria-label={`Remove ${p.username}`}
                         style={{
                           marginLeft: '2px',
                           padding: '2px',
@@ -475,7 +424,7 @@ export const DashboardPage: React.FC = () => {
                           background: 'transparent',
                         }}
                       >
-                        <X size={12} />
+                        <X size={11} />
                       </button>
                     )}
                   </span>
@@ -485,7 +434,7 @@ export const DashboardPage: React.FC = () => {
                     onClick={() => startManage(todo.id)}
                     style={{
                       fontSize: '12px',
-                      padding: '3px 10px',
+                      padding: '2px 10px',
                       borderRadius: '12px',
                       background: 'transparent',
                       border: '1px dashed var(--border-color)',
@@ -496,70 +445,12 @@ export const DashboardPage: React.FC = () => {
                       cursor: 'pointer',
                     }}
                   >
-                    <UserPlus size={12} /> Add people
+                    <UserPlus size={12} /> Add
                   </button>
                 )}
-              </div>
+              </MetaRow>
 
-              {isManaging && (
-                <div style={{
-                  marginTop: '8px',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                }}>
-                  <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '8px', color: 'var(--text-main)' }}>
-                    Add friends to this goal
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
-                    {availableFriends.map(f => {
-                      const checked = stagedAdds.includes(f.id);
-                      return (
-                        <label key={f.id} style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          fontSize: '12px',
-                          padding: '4px 10px',
-                          borderRadius: '12px',
-                          background: checked ? 'var(--accent)' : 'var(--bg-color)',
-                          color: checked ? 'var(--bg-color)' : 'var(--text-main)',
-                          border: `1px solid ${checked ? 'var(--accent)' : 'var(--border-color)'}`,
-                          cursor: 'pointer',
-                        }}>
-                          <input
-                            type="checkbox"
-                            style={{ display: 'none' }}
-                            checked={checked}
-                            onChange={(e) => {
-                              if (e.target.checked) setStagedAdds([...stagedAdds, f.id]);
-                              else setStagedAdds(stagedAdds.filter(id => id !== f.id));
-                            }}
-                          />
-                          {checked ? <Check size={12} /> : <UserPlus size={12} />}
-                          {f.username}
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <button type="button" onClick={cancelManage} className="btn-secondary">Cancel</button>
-                    <button type="button" onClick={() => submitAddParticipants(todo.id)} className="btn-primary" disabled={stagedAdds.length === 0}>
-                      Add ({stagedAdds.length})
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {todo.reminderTime && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent)', marginBottom: '8px' }}>
-                  <Clock size={14} />
-                  {formatReminderLabel(isoToLocalInput(todo.reminderTime))}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+              <MetaRow icon={<Heart size={14} />}>
                 {(['like', 'dislike'] as const).map(kind => {
                   const active = todo.myReaction === kind;
                   const face = kind === 'like' ? '( ^.^ )' : '( >.< )';
@@ -576,8 +467,8 @@ export const DashboardPage: React.FC = () => {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '6px',
-                        fontSize: '13px',
-                        padding: '4px 10px',
+                        fontSize: '12px',
+                        padding: '3px 10px',
                         borderRadius: '12px',
                         background: active ? 'var(--accent)' : 'var(--bg-secondary)',
                         color: active ? 'var(--bg-color)' : 'var(--text-main)',
@@ -595,29 +486,59 @@ export const DashboardPage: React.FC = () => {
                     </button>
                   );
                 })}
-              </div>
-            </>
-          )}
-        </div>
+              </MetaRow>
+            </div>
 
-        {isOwner && !isEditing && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <button
-              onClick={() => startEdit(todo)}
-              style={{ color: 'var(--text-muted)', padding: '8px' }}
-              title="Edit"
-            >
-              <Pencil size={16} />
-            </button>
-            <button
-              onClick={() => deleteTodo(todo.id)}
-              style={{ color: 'var(--text-muted)', padding: '8px' }}
-              className="hover-danger"
-              title="Delete"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
+            {isManaging && (
+              <div style={{
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '8px', color: 'var(--text-main)' }}>
+                  Add friends to this goal
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                  {availableFriends.map(f => {
+                    const checked = stagedAdds.includes(f.id);
+                    return (
+                      <label key={f.id} style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '12px',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        background: checked ? 'var(--accent)' : 'var(--bg-color)',
+                        color: checked ? 'var(--bg-color)' : 'var(--text-main)',
+                        border: `1px solid ${checked ? 'var(--accent)' : 'var(--border-color)'}`,
+                        cursor: 'pointer',
+                      }}>
+                        <input
+                          type="checkbox"
+                          style={{ display: 'none' }}
+                          checked={checked}
+                          onChange={(e) => {
+                            if (e.target.checked) setStagedAdds([...stagedAdds, f.id]);
+                            else setStagedAdds(stagedAdds.filter(id => id !== f.id));
+                          }}
+                        />
+                        {checked ? <Check size={12} /> : <UserPlus size={12} />}
+                        {f.username}
+                      </label>
+                    );
+                  })}
+                </div>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <button type="button" onClick={cancelManage} className="btn-secondary">Cancel</button>
+                  <button type="button" onClick={() => submitAddParticipants(todo.id)} className="btn-primary" disabled={stagedAdds.length === 0}>
+                    Add ({stagedAdds.length})
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </motion.div>
     );
@@ -643,14 +564,14 @@ export const DashboardPage: React.FC = () => {
             className="card"
             style={{ marginBottom: '24px' }}
           >
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
               <input
                 autoFocus
                 className="input"
                 placeholder="What do you want to achieve?"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                style={{ fontSize: '18px', fontWeight: 500, marginBottom: '8px' }}
+                style={{ fontSize: '18px', fontWeight: 500 }}
               />
               <textarea
                 className="input"
@@ -658,18 +579,15 @@ export const DashboardPage: React.FC = () => {
                 value={newAbout}
                 onChange={(e) => setNewAbout(e.target.value)}
                 rows={3}
-                style={{ resize: 'vertical', marginBottom: '8px' }}
+                style={{ resize: 'vertical' }}
               />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)' }}>Set a Reminder/Deadline (Optional)</label>
-                <ReminderInput value={reminderTime} onChange={setReminderTime} />
-              </div>
+              <ReminderPicker value={reminderTime} onChange={setReminderTime} idPrefix="create" />
               {friends.length > 0 && (
-                <div style={{ marginTop: '16px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: 'var(--text-main)' }}>Add Friends to this Goal:</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '8px', color: 'var(--text-main)' }}>Add friends to this goal</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {friends.map(friend => (
-                      <label key={friend.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '16px', border: selectedFriends.includes(friend.id) ? '1px solid var(--accent)' : '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <label key={friend.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', background: 'var(--bg-secondary)', padding: '5px 12px', borderRadius: '14px', border: selectedFriends.includes(friend.id) ? '1px solid var(--accent)' : '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.2s' }}>
                         <input
                           type="checkbox"
                           style={{ display: 'none' }}
@@ -688,7 +606,7 @@ export const DashboardPage: React.FC = () => {
               )}
             </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => setIsAdding(false)} className="btn-secondary">Cancel</button>
+              <button type="button" onClick={() => { setIsAdding(false); setReminderTime(null); }} className="btn-secondary">Cancel</button>
               <button type="submit" className="btn-primary">Create</button>
             </div>
           </motion.form>

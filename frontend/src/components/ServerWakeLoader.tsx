@@ -9,7 +9,7 @@ export const ServerWakeLoader: React.FC = () => (
     alignItems: 'center',
     justifyContent: 'center',
     gap: '24px',
-    background: 'var(--bg-main)',
+    background: 'var(--bg-color)',
     color: 'var(--text-main)',
     textAlign: 'center',
     padding: '24px',

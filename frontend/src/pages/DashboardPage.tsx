@@ -68,7 +68,7 @@ const ReminderInput: React.FC<{ value: string; onChange: (v: string) => void }> 
               borderRadius: '12px',
               border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border-color)'}`,
               background: isActive ? 'var(--accent)' : 'var(--bg-secondary)',
-              color: isActive ? 'white' : 'var(--text-muted)',
+              color: isActive ? 'var(--bg-color)' : 'var(--text-muted)',
               cursor: 'pointer',
               transition: 'all 0.2s',
             }}
@@ -422,7 +422,7 @@ export const DashboardPage: React.FC = () => {
                 <span style={{
                   ...ownerBadgeStyle,
                   background: isOwner ? 'var(--accent)' : 'transparent',
-                  color: isOwner ? 'white' : 'var(--text-muted)',
+                  color: isOwner ? 'var(--bg-color)' : 'var(--text-muted)',
                   border: isOwner ? 'none' : '1px solid var(--border-color)',
                 }}>
                   {isOwner ? 'Owner' : 'Participant'}
@@ -524,7 +524,7 @@ export const DashboardPage: React.FC = () => {
                           padding: '4px 10px',
                           borderRadius: '12px',
                           background: checked ? 'var(--accent)' : 'var(--bg-color)',
-                          color: checked ? 'white' : 'var(--text-main)',
+                          color: checked ? 'var(--bg-color)' : 'var(--text-main)',
                           border: `1px solid ${checked ? 'var(--accent)' : 'var(--border-color)'}`,
                           cursor: 'pointer',
                         }}>
@@ -580,7 +580,7 @@ export const DashboardPage: React.FC = () => {
                         padding: '4px 10px',
                         borderRadius: '12px',
                         background: active ? 'var(--accent)' : 'var(--bg-secondary)',
-                        color: active ? 'white' : 'var(--text-main)',
+                        color: active ? 'var(--bg-color)' : 'var(--text-main)',
                         border: `1px solid ${active ? 'var(--accent)' : 'var(--border-color)'}`,
                         cursor: isOwner ? 'default' : 'pointer',
                         opacity: isOwner ? 0.7 : 1,
@@ -589,7 +589,7 @@ export const DashboardPage: React.FC = () => {
                     >
                       <span>{face}</span>
                       <span>{kind}</span>
-                      <span style={{ color: active ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)', fontWeight: 600 }}>
+                      <span style={{ color: active ? 'var(--bg-color)' : 'var(--text-muted)', opacity: active ? 0.85 : 1, fontWeight: 600 }}>
                         {count}
                       </span>
                     </button>

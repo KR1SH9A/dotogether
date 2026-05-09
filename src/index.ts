@@ -24,6 +24,15 @@ dotogether.use(cors({
 }));
 dotogether.use(express.json());
 
+dotogether.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV ?? 'development',
+  });
+});
+
 let ormInstance: any = null;
 
 

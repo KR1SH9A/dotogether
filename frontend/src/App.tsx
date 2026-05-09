@@ -50,17 +50,26 @@ const AppRoutes = () => {
 };
 
 import { ThemeProvider } from './context/ThemeContext';
+import { useBackendWarmup } from './hooks/useBackendWarmup';
+import { ServerWakeLoader } from './components/ServerWakeLoader';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { state } = useBackendWarmup();
+  if (state === 'waking') return <ServerWakeLoader />;
+  if (state === 'pending') return null;
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
+
+const App: React.FC = () => (
+  <ThemeProvider>
+    <AppContent />
+  </ThemeProvider>
+);
 
 export default App;

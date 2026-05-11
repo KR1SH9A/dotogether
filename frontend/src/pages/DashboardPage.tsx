@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { AsciiLoader } from '../components/AsciiLoader';
 import { ReminderPicker } from '../components/ReminderPicker';
 import { formatReminderLabel } from '../utils/datetime';
+import { connectSocket } from '../realtime/socket';
 import { Plus, Check, Trash2, Users, Clock, Pencil, X, UserPlus, Heart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -77,6 +78,37 @@ export const DashboardPage: React.FC = () => {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    const sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) return;
+
+    const s = connectSocket(sessionId);
+
+    const onUpsert = (todo: Todo) => {
+      setTodos(prev => {
+        const idx = prev.findIndex(t => t.id === todo.id);
+        if (idx === -1) return [todo, ...prev];
+        const copy = prev.slice();
+        copy[idx] = todo;
+        return copy;
+      });
+    };
+    const onDelete = ({ id }: { id: number }) => {
+      setTodos(prev => prev.filter(t => t.id !== id));
+    };
+    const onReconnect = () => { fetchData(); };
+
+    s.on('todo:upserted', onUpsert);
+    s.on('todo:deleted', onDelete);
+    s.io.on('reconnect', onReconnect);
+
+    return () => {
+      s.off('todo:upserted', onUpsert);
+      s.off('todo:deleted', onDelete);
+      s.io.off('reconnect', onReconnect);
+    };
+  }, []);
 
   const handleAddTodo = async (e: React.FormEvent) => {
     e.preventDefault();

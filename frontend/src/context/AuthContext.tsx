@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
+import { connectSocket, disconnectSocket } from '../realtime/socket';
 
 
 interface User {
@@ -45,10 +46,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(userData);
     localStorage.setItem('sessionId', token);
     localStorage.setItem('user', JSON.stringify(userData));
+    connectSocket(token);
   };
 
   const logout = () => {
     apiClient.post('/auth/logout').catch(() => {});
+    disconnectSocket();
     setSessionId(null);
     setUser(null);
     localStorage.removeItem('sessionId');

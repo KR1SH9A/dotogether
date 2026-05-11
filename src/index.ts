@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import { createServer } from "node:http";
+import { Server as IOServer } from "socket.io";
 import { InitORM } from "./database/InitORM.js";
 
 //controllers here
@@ -9,13 +11,15 @@ import todoRouter from "./features/todo/todo.controller.js";
 
 //middleware here
 import { errorMiddleWare } from "./common/middleware/error.middleware.js";
-import { createServer, Server } from "node:http";
+
+//realtime
+import { setIO } from "./realtime/io.js";
+import { makeSocketAuth } from "./realtime/socketAuth.js";
+import { registerSocketHandlers } from "./realtime/handlers.js";
 
 const dotogether = express();
 
 const server = createServer(dotogether);
-
-const io = new Server(server);
 
 dotogether.use(cors({
   // origin: process.env.ALLOWED_ORIGIN === "*" ? true : (process.env.ALLOWED_ORIGIN || true),
@@ -61,8 +65,28 @@ dotogether.use(errorMiddleWare);
 
 const PORT = process.env.PORT || 3000;
 
-dotogether.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+async function start() {
+  const orm = await InitORM();
+  ormInstance = orm;
+
+  const io = new IOServer(server, {
+    cors: {
+      origin: process.env.ALLOWED_ORIGIN,
+      credentials: true,
+    },
+  });
+  io.use(makeSocketAuth(orm));
+  registerSocketHandlers(io);
+  setIO(io);
+
+  server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });
 
 export default dotogether;

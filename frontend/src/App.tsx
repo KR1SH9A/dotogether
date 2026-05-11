@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
@@ -8,27 +8,30 @@ import { SignupPage } from './pages/SignupPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { FriendsPage } from './pages/FriendsPage';
 import { AsciiLoader } from './components/AsciiLoader';
+import { BackgroundCats } from './components/BackgroundCats';
+import { ThemeProvider } from './context/ThemeContext';
+import { BackendStatusProvider, useBackendStatus } from './context/BackendStatusContext';
+import { ServerWakeLoader } from './components/ServerWakeLoader';
+import { ServerDownScreen } from './components/ServerDownScreen';
 import './index.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AsciiLoader /></div>;
   if (!user) return <Navigate to="/login" replace />;
-  
+
   return <>{children}</>;
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AsciiLoader /></div>;
   if (user) return <Navigate to="/dashboard" replace />;
-  
+
   return <>{children}</>;
 };
-
-import { BackgroundCats } from './components/BackgroundCats';
 
 const AppRoutes = () => {
   return (
@@ -49,14 +52,21 @@ const AppRoutes = () => {
   );
 };
 
-import { ThemeProvider } from './context/ThemeContext';
-import { useBackendWarmup } from './hooks/useBackendWarmup';
-import { ServerWakeLoader } from './components/ServerWakeLoader';
-
 const AppContent: React.FC = () => {
-  const { state } = useBackendWarmup();
-  if (state === 'waking') return <ServerWakeLoader />;
-  if (state === 'pending') return null;
+  const { status, retryNow } = useBackendStatus();
+  const [showWakeLoader, setShowWakeLoader] = useState(false);
+
+  useEffect(() => {
+    if (status !== 'warming') {
+      setShowWakeLoader(false);
+      return;
+    }
+    const id = window.setTimeout(() => setShowWakeLoader(true), 1500);
+    return () => window.clearTimeout(id);
+  }, [status]);
+
+  if (status === 'warming') return showWakeLoader ? <ServerWakeLoader /> : null;
+  if (status === 'down') return <ServerDownScreen onRetry={retryNow} />;
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -68,7 +78,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
   <ThemeProvider>
-    <AppContent />
+    <BackendStatusProvider>
+      <AppContent />
+    </BackendStatusProvider>
   </ThemeProvider>
 );
 

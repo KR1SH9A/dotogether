@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { reportServerDown } from './serverStatusBridge';
 
 export const apiClient = axios.create({
   // baseURL: import.meta.env.PROD ? '/api' : 'http://localhost:3000/api',
@@ -15,6 +16,22 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+apiClient.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (axios.isCancel(err) || err.code === 'ERR_CANCELED') {
+      return Promise.reject(err);
+    }
+    const isNetworkError = !err.response;
+    const status: number | undefined = err.response?.status;
+    const is5xx = typeof status === 'number' && status >= 500 && status < 600;
+    if (isNetworkError || is5xx) {
+      reportServerDown();
+    }
+    return Promise.reject(err);
+  },
+);
 
 export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {

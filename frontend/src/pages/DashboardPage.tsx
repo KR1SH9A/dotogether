@@ -87,11 +87,18 @@ export const DashboardPage: React.FC = () => {
 
     const onUpsert = (todo: Todo) => {
       setTodos(prev => {
-        const idx = prev.findIndex(t => t.id === todo.id);
-        if (idx === -1) return [todo, ...prev];
-        const copy = prev.slice();
-        copy[idx] = todo;
-        return copy;
+        let replaced = false;
+        const result: Todo[] = [];
+        for (const t of prev) {
+          if (t.id === todo.id) {
+            if (!replaced) { result.push(todo); replaced = true; }
+            // drop any further duplicates of the same id
+          } else {
+            result.push(t);
+          }
+        }
+        if (!replaced) result.unshift(todo);
+        return result;
       });
     };
     const onDelete = ({ id }: { id: number }) => {
@@ -145,7 +152,19 @@ export const DashboardPage: React.FC = () => {
       if (friendIds.length > 0) {
         final = await todosApi.addParticipants(created.id, friendIds);
       }
-      setTodos(prev => prev.map(t => t.id === tempId ? final : t));
+      // Reconcile against the socket: the server may have already pushed the
+      // real todo (id `final.id`) via `todo:upserted` before this await resolved.
+      // Drop both the temp id and any pre-existing real-id entry, then insert
+      // the authoritative copy exactly once. Without this, the optimistic temp
+      // ends up *next to* the socket-prepended copy and both survive.
+      setTodos(prev => {
+        const existingIdx = prev.findIndex(t => t.id === final.id);
+        const filtered = prev.filter(t => t.id !== tempId && t.id !== final.id);
+        if (existingIdx === -1) return [final, ...filtered];
+        // Preserve the position the socket event chose.
+        const insertAt = Math.min(existingIdx, filtered.length);
+        return [...filtered.slice(0, insertAt), final, ...filtered.slice(insertAt)];
+      });
     } catch (err) {
       setTodos(prev => prev.filter(t => t.id !== tempId));
       alert(handleApiError(err));
